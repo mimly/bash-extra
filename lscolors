@@ -1,0 +1,149 @@
+#!/bin/bash
+
+# shellcheck disable=SC2034
+
+set -o errexit
+#set -o nounset
+set -o pipefail
+
+# shellcheck disable=SC1091
+. bash_template.sh
+
+SCRIPT_NAME=$(basename "${0}")
+SCRIPT_VERSION="0.0.1"
+SCRIPT_AUTHOR="mimly"
+SCRIPT_GIT="https://github.com/mimly"
+SCRIPT_LICENSE="MIT"
+SCRIPT_DESCRIPTION="list available colors"
+SCRIPT_ARGUMENTS="[OPTION]..."
+
+### D E F A U L T   V A L U E S ###
+STYLES=(0 1 2)
+CHOSEN_STYLES=()
+PLANE=38
+
+SCRIPT_OPTIONS=(\
+    "-s STYLE, --style=STYLE"\
+    "--none"\
+    "--bold"\
+    "--dim"\
+    "--italic"\
+    "--underlined"\
+    "--blink"\
+    "--reverse"\
+    "--hidden"\
+    "--fg, --foreground"\
+    "--bg, --background"\
+    "-h, --help"\
+    "-v, --version"\
+)
+SCRIPT_OPTION_DESCRIPTIONS=(\
+    "default $( IFS=',' ; echo "${STYLES[*]}" ), possible values 0-5,7,8"\
+    ""\
+    ""\
+    ""\
+    ""\
+    ""\
+    ""\
+    ""\
+    ""\
+    "default"\
+    ""\
+    "display this help and exit"\
+    "output version information and exit"\
+)
+SCRIPT_EXAMPLES=(\
+    ""
+)
+
+# We use "$@" instead of $* to preserve argument-boundary information
+# Add : to suppress getopt error messages, i.e. getopt -o ':...'
+ARGS=$(getopt -o 's:hv' --long 'style:,none,bold,dim,italic,underlined,blink,reverse,hidden,fg,foreground,bg,background,help,version' -- "$@") || { usage ; exit 1 ; }
+eval "set -- $ARGS"
+
+while true; do
+    case $1 in
+        (-s|--style)
+            IFS=',' read -ra CHOSEN_STYLES <<< "$2" ; shift 2 ;;
+        (--none)
+            CHOSEN_STYLES+=(0) ; shift ;;
+        (--bold)
+            CHOSEN_STYLES+=(1) ; shift ;;
+        (--dim)
+            CHOSEN_STYLES+=(2) ; shift ;;
+        (--italic)
+            CHOSEN_STYLES+=(3) ; shift ;;
+        (--underlined)
+            CHOSEN_STYLES+=(4) ; shift ;;
+        (--blink)
+            CHOSEN_STYLES+=(5) ; shift ;;
+        (--reverse)
+            CHOSEN_STYLES+=(7) ; shift ;;
+        (--hidden)
+            CHOSEN_STYLES+=(8) ; shift ;;
+        (--fg|--foreground)
+            PLANE=38 ; shift ;;
+        (--bg|--background)
+            PLANE=48 ; shift ;;
+        (-v|--version)
+            about ; changelog "$SCRIPT_NAME" ; exit 0 ;;
+        (-h|--help)
+            usageFull ; exit 0 ;;
+        (--)
+            shift ; break ;;
+        (*)
+            usage ; exit 1 ;;
+    esac
+done
+
+REMAINING_ARGS=("$@")
+if [[ -n $REMAINING_ARGS ]] ; then
+    usage
+    exit 1
+fi
+
+if [[ -n ${CHOSEN_STYLES[*]} ]] ; then
+    STYLES=("${CHOSEN_STYLES[@]}")
+fi
+
+for s in "${STYLES[@]}" ; do
+    if ! [[ "$s" =~ ^[0-57-8]{1}$ ]] ; then
+        usage
+        exit 1
+    fi
+done
+
+if [[ ${#STYLES[@]} -le 4 ]] ; then
+    TEXT="Mikołaj Młyńczak"
+    TEXT_LEN=$(( ${#TEXT} + 3 ))
+else
+    TEXT="mimly"
+    TEXT_LEN=${#TEXT}
+fi
+
+AVAILABLE_STYLES=([0]=RESET [1]=BOLD [2]=DIM [3]=ITALIC [4]=UNDERLINED [5]=BLINK [7]=REVERSE [8]=HIDDEN)
+printf "$RESET%s" ""
+for n in "${STYLES[@]}" ; do
+    printf "$TERMINAL_DEFAULT_COLOR%-$(( 7 + TEXT_LEN + 2 ))s" "${AVAILABLE_STYLES[$n]}"
+done
+printf "\n"
+
+for i in 00{0..8} {0{3,4,9},10}{0..7} ; do
+    for j in "${STYLES[@]}" ; do
+        COLOR="[$j;${i}m"
+        printf "$TERMINAL_DEFAULT_COLOR%-7s$RESET$COLOR%-$(( TEXT_LEN + 2 ))s$RESET" "$j;$i" "$TEXT"
+    done
+    printf "\n" ;
+done
+
+printf "\n" ;
+read -n 1 -s -r -p "Press any key to continue" ;
+printf "\n\n" ;
+
+for i in 00{0..9} 0{1..9}{0..9} {100..256} ; do
+    for j in "${STYLES[@]}" ; do
+        COLOR="[$j;${PLANE};5;${i}m"
+        printf "$TERMINAL_DEFAULT_COLOR%-7s$RESET$COLOR%-$(( TEXT_LEN + 2 ))s$RESET" "$j;$i" "$TEXT"
+    done
+    printf "\n" ;
+done

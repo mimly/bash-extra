@@ -1,0 +1,190 @@
+#!/bin/bash
+
+# shellcheck disable=SC2034
+
+set -o errexit
+#set -o nounset
+set -o pipefail
+
+# shellcheck disable=SC1091
+. bash_template.sh
+
+SCRIPT_NAME=$(basename "${0}")
+SCRIPT_VERSION="0.0.1"
+SCRIPT_AUTHOR="mimly"
+SCRIPT_GIT="https://github.com/mimly"
+SCRIPT_LICENSE="MIT"
+SCRIPT_DESCRIPTION="perfom linear color-interpolation of text"
+SCRIPT_ARGUMENTS="[OPTION]... TEXT"
+
+### D E F A U L T   V A L U E S ###
+FG_STYLE=1
+BG_STYLE=1
+FG_COLOR=255
+BG_COLOR=0
+FG_COLOR_STEP=-1
+BG_COLOR_STEP=0
+FG_STEP=3
+BG_STEP=3
+FG_CUSTOM_SCHEME=()
+BG_CUSTOM_SCHEME=()
+FORMAT="s"
+
+SCRIPT_OPTIONS=(\
+    "--arrow-right"\
+    "--arrow-left"\
+    "--fg-style=STYLE, --foreground-style=STYLE"\
+    "--bg-style=STYLE, --background-style=STYLE"\
+    "--fg-color=COLOR, --foreground-color=COLOR"\
+    "--bg-color=COLOR, --background-color=COLOR"\
+    "-i STEP, --fg-color-step=STEP, --foreground-color-step=STEP"\
+    "-j STEP, --bg-color-step=STEP, --background-color-step=STEP"\
+    "-k STEP, --fg-step=STEP, --foreground-step=STEP"\
+    "-l STEP, --bg-step=STEP, --background-step=STEP"\
+    "--fg-custom-scheme=ARRAY, --foreground-custom-scheme=ARRAY"\
+    "--bg-custom-scheme=ARRAY, --background-custom-scheme=ARRAY"\
+    "-o, --output"\
+    "-h, --help"\
+    "-v, --version"\
+)
+SCRIPT_OPTION_DESCRIPTIONS=(\
+    "sets BG_STYLE to 1, BG_COLOR to 255 and BG_COLOR_STEP to -1, which can be modified afterwards"\
+    "sets BG_STYLE to 1, BG_COLOR to 255 and BG_COLOR_STEP to -1, which can be modified afterwards"\
+    "default $FG_STYLE, possible values 0-5,7,8"\
+    "default $BG_STYLE, possible values 0-5,7,8"\
+    "default $FG_COLOR, possible values 0-256"\
+    "default $BG_COLOR, possible values 0-256"\
+    "default $FG_COLOR_STEP, possible values integers"\
+    "default $BG_COLOR_STEP, possible values integers"\
+    "default $FG_STEP, possible values positive integers"\
+    "default $BG_STEP, possible values positive integers"\
+    "i.e. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the foreground color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
+    "i.e. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the background color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
+    "output raw string to STDOUT"\
+    "display this help and exit"\
+    "output version information and exit"\
+)
+SCRIPT_EXAMPLES=(\
+    "\"Hello World!\""\
+)
+
+# We use "$@" instead of $* to preserve argument-boundary information
+# Add : to suppress getopt error messages, i.e. getopt -o ':...'
+ARGS=$(getopt -o 'i:j:k:l:ohv' --long 'arrow-right,arrow-left,fg-style:,foreground-style:,bg-style:,background-style:,fg-color:,foreground-color:,bg-color:,background-color:,fg-color-step:,foreground-color-step:,bg-color-step:,background-color-step:,fg-step:,foreground-step:,bg-step:,background-step:,fg-custom-scheme:,foreground-custom-scheme:,bg-custom-scheme:,background-custom-scheme:,output,help,version' -- "$@") || { usage ; exit 1 ; }
+eval "set -- $ARGS"
+
+while true; do
+    case $1 in
+        (--arrow-right)
+            ARROW="" ; BG_STYLE=1 ; BG_COLOR=255 ; BG_COLOR_STEP=-1 ; shift ;;
+        (--arrow-left)
+            ARROW="" ; BG_STYLE=1 ; BG_COLOR=255 ; BG_COLOR_STEP=-1 ; shift ;;
+        (--fg-style|--foreground-style)
+            FG_STYLE=$2 ; shift 2 ;;
+        (--bg-style|--background-style)
+            BG_STYLE=$2 ; shift 2 ;;
+        (--fg-color|--foreground-color)
+            FG_COLOR=$2 ; shift 2 ;;
+        (--bg-color|--background-color)
+            BG_COLOR=$2 ; shift 2 ;;
+        (-i|--fg-color-step|--foreground-color-step)
+            FG_COLOR_STEP=$2 ; shift 2 ;;
+        (-j|--bg-color-step|--background-color-step)
+            BG_COLOR_STEP=$2 ; shift 2 ;;
+        (-k|--fg-step|--foreground-step)
+            FG_STEP=$2 ; shift 2 ;;
+        (-l|--bg-step|--background-step)
+            BG_STEP=$2 ; shift 2 ;;
+        (--fg-custom-scheme|--foreground-custom-scheme)
+            IFS=',' read -ra arr <<< "$2"
+            for a in "${arr[@]}" ; do
+                IFS=':' read -ra tuple <<< "$a"
+                FG_CUSTOM_SCHEME+=(["${tuple[0]}"]="${tuple[1]}")
+            done
+            shift 2 ;;
+        (--bg-custom-scheme|--background-custom-scheme)
+            IFS=',' read -ra arr <<< "$2"
+            for a in "${arr[@]}" ; do
+                IFS=':' read -ra tuple <<< "$a"
+                BG_CUSTOM_SCHEME+=(["${tuple[0]}"]="${tuple[1]}")
+            done
+            shift 2 ;;
+        (-o|--output)
+            FORMAT="q" ; shift ;;
+        (-v|--version)
+            about ; changelog "$SCRIPT_NAME" ; exit 0 ;;
+        (-h|--help)
+            usageFull ; exit 0 ;;
+        (--)
+            shift ; break ;;
+        (*)
+            usage ; exit 1 ;;
+    esac
+done
+
+REMAINING_ARGS=("$@")
+
+TEXT="${REMAINING_ARGS[*]}"
+if [[ -z $TEXT ]] ; then
+    usage
+    exit 1
+fi
+
+setColorScheme() {
+    local -n CUSTOM_SCHEME=$1
+    local -n COLOR=$2
+    local -r COLOR_STEP=$3
+    local -r STEP=$4
+    local -r i=$5
+
+    if [[ -n ${CUSTOM_SCHEME[$i]} ]] ; then
+        COLOR=${CUSTOM_SCHEME[$i]}
+    fi
+
+    if [[ -n ${CUSTOM_SCHEME[*]} ]] ; then
+        return
+    fi
+
+    if [[ -n $STEP && $(( i % STEP )) -eq $(( STEP - 1 )) ]] ; then
+        COLOR=$(( COLOR + COLOR_STEP ))
+    fi
+}
+
+nonPrintableCharacters=0
+output=""
+
+setColorScheme BG_CUSTOM_SCHEME BG_COLOR
+
+if [[ $ARROW == "" ]] ; then
+    nonPrintableCharacters=$(( nonPrintableCharacters + 8 + 11 + ( 10 + ${#BG_COLOR} ) + 8 ))
+    output+="$RESET[0;38;5;0m[${BG_STYLE};48;5;${BG_COLOR}m$ARROW$RESET"
+elif [[ $ARROW == "" ]] ; then
+    nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#BG_COLOR} ) + 8 ))
+    output+="$RESET[${BG_STYLE};38;5;${BG_COLOR}m$ARROW$RESET"
+fi
+
+for (( i = 0; i < ${#TEXT}; ++i )) ; do
+    setColorScheme FG_CUSTOM_SCHEME FG_COLOR FG_COLOR_STEP FG_STEP "$i"
+    setColorScheme BG_CUSTOM_SCHEME BG_COLOR BG_COLOR_STEP BG_STEP "$i"
+
+    if [[ $BG_COLOR -eq 0 ]] ; then
+        nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#FG_COLOR} ) + 8 ))
+        output+="$RESET[${FG_STYLE};38;5;${FG_COLOR}m${TEXT:$i:1}$RESET"
+    else
+        nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#FG_COLOR} ) + ( 10 + ${#BG_COLOR} ) + 8 ))
+        output+="$RESET[${FG_STYLE};38;5;${FG_COLOR}m[${BG_STYLE};48;5;${BG_COLOR}m${TEXT:$i:1}$RESET"
+    fi
+done
+
+if [[ $ARROW == "" ]] ; then
+    nonPrintableCharacters=$(( nonPrintableCharacters + 8 + 11 + ( 10 + ${#BG_COLOR} ) + 8 ))
+    output+="$RESET[0;38;5;0m[${BG_STYLE};48;5;${BG_COLOR}m$ARROW$RESET"
+elif [[ $ARROW == "" ]] ; then
+    nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#BG_COLOR} ) + 8 ))
+    output+="$RESET[${BG_STYLE};38;5;${BG_COLOR}m$ARROW$RESET"
+fi
+
+printf "%$FORMAT\n" "$output"
+
+# No other appropriate way to return a value from a function
+echo $nonPrintableCharacters > ~/.non-printables
