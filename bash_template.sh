@@ -140,7 +140,7 @@ seeAlso() {
     for (( i = 0; i < ${#SCRIPT_SEE_ALSO[@]}; ++i )) ; do
         printf "    %s " "${SCRIPT_SEE_ALSO[$i]}"
     done
-    printf "\n"
+    printf "\n\n"
 }
 
 about() {
@@ -195,8 +195,8 @@ manual() {
             s/^[ ]*//g
             s/(${SCRIPT_NAME})/\\\fB\1\\\fR/g
             s/($(printf "%q" "$SCRIPT_ARGUMENTS"))/\\\fI\1\\\fR/g
-            s/(-[A-Za-z]{1})([ =,]{1})([A-Za-z:.,]+)?/\\\fB\1\\\fR\2\\\fI\3\\\fR/g
-            s/(--[A-Za-z-]+)([ =,]{1})([A-Za-z:.,]+)?/\\\fB\1\\\fR\2\\\fI\3\\\fR/g"
+            s/(^|[ ]{1})(--[A-Za-z-]+)(([ =]{1})([A-Za-z:.,]+))?/\1\\\fB\2\\\fR\\\fI\3\\\fR/g
+            s/(^|[ ]{1})(-[A-Za-z]{1})(([ =]{1})([A-Za-z:.,]+))?/\1\\\fB\2\\\fR\\\fI\3\\\fR/g"
         printf "\n"
     done
 }

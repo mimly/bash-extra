@@ -1,21 +1,12 @@
 #!/bin/bash
 
-# shellcheck disable=SC2034
+# shellcheck disable=SC1091,SC2034
 
 set -o errexit
 #set -o nounset
 set -o pipefail
 
-# shellcheck disable=SC1091
 . bash_template.sh
-
-SCRIPT_NAME=$(basename "${0}")
-SCRIPT_VERSION="0.0.1"
-SCRIPT_AUTHOR="mimly"
-SCRIPT_GIT="https://github.com/mimly"
-SCRIPT_LICENSE="MIT"
-SCRIPT_DESCRIPTION="perfom linear color-interpolation of text"
-SCRIPT_ARGUMENTS="[OPTION]... TEXT"
 
 ### D E F A U L T   V A L U E S ###
 FG_STYLE=1
@@ -30,6 +21,9 @@ FG_CUSTOM_SCHEME=()
 BG_CUSTOM_SCHEME=()
 FORMAT="s"
 
+SCRIPT_DESCRIPTION="perfom linear color-interpolation of text"
+SCRIPT_FULL_DESCRIPTION="-"
+SCRIPT_ARGUMENTS="[OPTION]... TEXT"
 SCRIPT_OPTIONS=(\
     "--arrow-right"\
     "--arrow-left"\
@@ -48,8 +42,8 @@ SCRIPT_OPTIONS=(\
     "-v, --version"\
 )
 SCRIPT_OPTION_DESCRIPTIONS=(\
-    "sets BG_STYLE to 1, BG_COLOR to 255 and BG_COLOR_STEP to -1, which can be modified afterwards"\
-    "sets BG_STYLE to 1, BG_COLOR to 255 and BG_COLOR_STEP to -1, which can be modified afterwards"\
+    "sets background style to 1, color to 255 and color step to -1, which can be modified afterwards"\
+    "sets background style to 1, color to 255 and color step to -1, which can be modified afterwards"\
     "default $FG_STYLE, possible values 0-5,7,8"\
     "default $BG_STYLE, possible values 0-5,7,8"\
     "default $FG_COLOR, possible values 0-256"\
@@ -58,8 +52,8 @@ SCRIPT_OPTION_DESCRIPTIONS=(\
     "default $BG_COLOR_STEP, possible values integers"\
     "default $FG_STEP, possible values positive integers"\
     "default $BG_STEP, possible values positive integers"\
-    "i.e. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the foreground color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
-    "i.e. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the background color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
+    "e.g. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the foreground color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
+    "e.g. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the background color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
     "output raw string to STDOUT"\
     "display this help and exit"\
     "output version information and exit"\
@@ -67,10 +61,13 @@ SCRIPT_OPTION_DESCRIPTIONS=(\
 SCRIPT_EXAMPLES=(\
     "\"Hello World!\""\
 )
+SCRIPT_SEE_ALSO=(\
+    "lscolors(1)"\
+)
 
 # We use "$@" instead of $* to preserve argument-boundary information
 # Add : to suppress getopt error messages, i.e. getopt -o ':...'
-ARGS=$(getopt -o 'i:j:k:l:ohv' --long 'arrow-right,arrow-left,fg-style:,foreground-style:,bg-style:,background-style:,fg-color:,foreground-color:,bg-color:,background-color:,fg-color-step:,foreground-color-step:,bg-color-step:,background-color-step:,fg-step:,foreground-step:,bg-step:,background-step:,fg-custom-scheme:,foreground-custom-scheme:,bg-custom-scheme:,background-custom-scheme:,output,help,version' -- "$@") || { usage ; exit 1 ; }
+ARGS=$(getopt -o 'i:j:k:l:ohv' --long 'arrow-right,arrow-left,fg-style:,foreground-style:,bg-style:,background-style:,fg-color:,foreground-color:,bg-color:,background-color:,fg-color-step:,foreground-color-step:,bg-color-step:,background-color-step:,fg-step:,foreground-step:,bg-step:,background-step:,fg-custom-scheme:,foreground-custom-scheme:,bg-custom-scheme:,background-custom-scheme:,output,help,version,update-manual' -- "$@") || { usage ; exit 1 ; }
 eval "set -- $ARGS"
 
 while true; do
@@ -115,6 +112,8 @@ while true; do
             about ; changelog "$SCRIPT_NAME" ; exit 0 ;;
         (-h|--help)
             usageFull ; exit 0 ;;
+        (--update-manual) # hidden option
+            updateManual ; exit 0 ;;
         (--)
             shift ; break ;;
         (*)

@@ -1,27 +1,21 @@
 #!/bin/bash
 
-# shellcheck disable=SC2034
+# shellcheck disable=SC1091,SC2034
 
 set -o errexit
-#set -o nounset
+set -o nounset
 set -o pipefail
 
-# shellcheck disable=SC1091
 . bash_template.sh
-
-SCRIPT_NAME=$(basename "${0}")
-SCRIPT_VERSION="0.0.1"
-SCRIPT_AUTHOR="mimly"
-SCRIPT_GIT="https://github.com/mimly"
-SCRIPT_LICENSE="MIT"
-SCRIPT_DESCRIPTION="list available colors"
-SCRIPT_ARGUMENTS="[OPTION]..."
 
 ### D E F A U L T   V A L U E S ###
 STYLES=(0 1 2)
 CHOSEN_STYLES=()
 PLANE=38
 
+SCRIPT_DESCRIPTION="list available colors"
+SCRIPT_FULL_DESCRIPTION="-"
+SCRIPT_ARGUMENTS="[OPTION]..."
 SCRIPT_OPTIONS=(\
     "-s STYLE, --style=STYLE"\
     "--none"\
@@ -52,13 +46,13 @@ SCRIPT_OPTION_DESCRIPTIONS=(\
     "display this help and exit"\
     "output version information and exit"\
 )
-SCRIPT_EXAMPLES=(\
-    ""
+SCRIPT_SEE_ALSO=(\
+    "colorize(1)"\
 )
 
 # We use "$@" instead of $* to preserve argument-boundary information
 # Add : to suppress getopt error messages, i.e. getopt -o ':...'
-ARGS=$(getopt -o 's:hv' --long 'style:,none,bold,dim,italic,underlined,blink,reverse,hidden,fg,foreground,bg,background,help,version' -- "$@") || { usage ; exit 1 ; }
+ARGS=$(getopt -o 's:hv' --long 'style:,none,bold,dim,italic,underlined,blink,reverse,hidden,fg,foreground,bg,background,help,version,update-manual' -- "$@") || { usage ; exit 1 ; }
 eval "set -- $ARGS"
 
 while true; do
@@ -86,9 +80,11 @@ while true; do
         (--bg|--background)
             PLANE=48 ; shift ;;
         (-v|--version)
-            about ; changelog "$SCRIPT_NAME" ; exit 0 ;;
+            about ; changelog ; exit 0 ;;
         (-h|--help)
             usageFull ; exit 0 ;;
+        (--update-manual) # hidden option
+            updateManual ; exit 0 ;;
         (--)
             shift ; break ;;
         (*)
@@ -97,7 +93,7 @@ while true; do
 done
 
 REMAINING_ARGS=("$@")
-if [[ -n $REMAINING_ARGS ]] ; then
+if [[ -n ${REMAINING_ARGS[*]} ]] ; then
     usage
     exit 1
 fi
