@@ -47,14 +47,13 @@ removeHistoryDuplicates() {
 
 # In order to wrap lines correctly -> checkwinsize/ps
 padWithNonPrintableCharacters() {
-    local cmd=$1
-    local cmdOutput
-    cmdOutput=$($cmd)
-    local cmdNonPrintableCharacters
-    cmdNonPrintableCharacters=$(cat ~/.non-printables)
-    # TOTAL NUMBER OF PRINTABLE CHARACTERS - TOTAL NUMBER OF NON-PRINTABLE CHARACTERS
+    local allCharacters
+    read -r -u 7 allCharacters
+    local nonPrintableCharacters
+    read -r -u 7 nonPrintableCharacters
+
     local output=""
-    for (( i = 0; i < $(( ${#cmdOutput} - cmdNonPrintableCharacters )); ++i )) ; do
+    for (( i = 0; i < $(( allCharacters - nonPrintableCharacters )); ++i )) ; do
         output+=""
     done
     printf "%s" "$output"

@@ -187,4 +187,4 @@ fi
 printf "%$FORMAT\n" "$output"
 
 # No other appropriate way to return a value from a function
-echo $nonPrintableCharacters > ~/.non-printables
+echo $nonPrintableCharacters >&7
