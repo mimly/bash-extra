@@ -1,8 +1,35 @@
 #!/bin/bash
 
-buildInfo() {
-    :
-}
+#buildInfo() {
+#    local allCharacters=0
+#    local nonPrintableCharacters=0
+#
+#    local CONFIG_FILES=("settings.xml" "build.gradle" "pom.xml" "package.json")
+#    local ANT
+#    ANT=$(colorize --arrow-right --fg-color 232 --fg-color-step 0 --bg-custom-scheme 0:230,2:229,4:228,6:227,8:226 " ant    ")
+#    local GRADLE
+#    GRADLE=$(colorize --arrow-right --fg-color 232 --fg-color-step 0 --bg-custom-scheme 0:50,2:49,4:48,6:47,8:46 " gradle ")
+#    local MAVEN
+#    MAVEN=$(colorize --arrow-right --fg-color 232 --fg-color-step 0 --fg-style 2 --bg-custom-scheme 0:27,3:26,6:25,9:24 " maven  ")
+#    local NPM
+#    NPM=$(colorize --arrow-right --fg-color 232 --fg-color-step 0 --bg-custom-scheme 0:200,2:199,4:198,6:197,8:196 " npm    ")
+#    local TOOLS=("$ANT" "$GRADLE" "$MAVEN" "$NPM")
+#
+#    local buildInfo
+#    for ((i = 0; i < ${#TOOLS[@]}; ++i)) ; do
+#        if [[ -f "${CONFIG_FILES[$i]}" ]] ; then
+#            buildInfo+="${TOOLS[$i]}"
+#        fi
+#    done
+#
+#    allCharacters=$(( ${#buildInfo} + 1 ))
+#    nonPrintableCharacters=$(( nonPrintableCharacters + $(read -r -u 7 x ; echo "$x") ))
+#
+#    printf "%s " "$buildInfo"
+#
+#    echo $allCharacters >&7
+#    echo $nonPrintableCharacters >&7
+#}
 
 setLocale() {
     local lang=$1
