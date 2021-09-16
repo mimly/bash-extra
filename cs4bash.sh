@@ -1,46 +1,46 @@
 #!/bin/bash
 
-export RESET="[0;000m"
-export BOLD="[0;001m"
-export DIM="[0;002m"
-export ITALIC="[0;003m"
-export UNDERLINED="[0;004m"
-export BLINK="[0;005m"
-export REVERSE="[0;007m"
-export HIDDEN="[0;008m"
+export RESET="0;000"
+export BOLD="0;001"
+export DIM="0;002"
+export ITALIC="0;003"
+export UNDERLINED="0;004"
+export BLINK="0;005"
+export REVERSE="0;007"
+export HIDDEN="0;008"
 
-export BLACK="[0;030m"
-export DARK_RED="[0;031m"
-export DARK_GREEN="[0;032m"
-export DARK_ORANGE="[0;033m"
-export DARK_BLUE="[0;034m"
-export DARK_PURPLE="[0;035m"
-export DARK_CYAN="[0;036m"
+export BLACK="0;030"
+export DARK_RED="0;031"
+export DARK_GREEN="0;032"
+export DARK_ORANGE="0;033"
+export DARK_BLUE="0;034"
+export DARK_PURPLE="0;035"
+export DARK_CYAN="0;036"
 
-export LIGHT_GREY="[0;040m"
-export DARK_GREY="[0;090m"
-export RED="[0;091m"
-export GREEN="[0;092m"
-export YELLOW="[0;093m"
-export BLUE="[0;094m"
-export PURPLE="[0;095m"
-export CYAN="[0;096m"
-export WHITE="[0;097m"
+export LIGHT_GREY="0;040"
+export DARK_GREY="0;090"
+export RED="0;091"
+export GREEN="0;092"
+export YELLOW="0;093"
+export BLUE="0;094"
+export PURPLE="0;095"
+export CYAN="0;096"
+export WHITE="0;097"
 
-export LIGHT_GREY_B="[1;040m"
-export DARK_GREY_B="[1;090m"
-export RED_B="[1;091m"
-export GREEN_B="[1;092m"
-export YELLOW_B="[1;093m"
-export BLUE_B="[1;094m"
-export PURPLE_B="[1;095m"
-export CYAN_B="[1;096m"
-export WHITE_B="[1;097m"
+export LIGHT_GREY_B="1;040"
+export DARK_GREY_B="1;090"
+export RED_B="1;091"
+export GREEN_B="1;092"
+export YELLOW_B="1;093"
+export BLUE_B="1;094"
+export PURPLE_B="1;095"
+export CYAN_B="1;096"
+export WHITE_B="1;097"
 
-export ROOT_DEFAULT_COLOR="[1;38;5;125m"
-export HOST_DEFAULT_COLOR="[1;38;5;126m"
-export TERMINAL_DEFAULT_COLOR="[0;38;5;230m"
-export TERMINAL_DEFAULT_COLOR_B="[1;38;5;230m"
+export ROOT_DEFAULT_COLOR="1;38;5;125"
+export HOST_DEFAULT_COLOR="1;38;5;126"
+export TERMINAL_DEFAULT_COLOR="0;38;5;230"
+export TERMINAL_DEFAULT_COLOR_B="1;38;5;230"
 
 #  dircolors -b >> fileName
 #
@@ -102,19 +102,21 @@ export TERMINAL_DEFAULT_COLOR_B="[1;38;5;230m"
 # 105 = light purple background
 # 106 = turquoise background
 
-DI="1;38;5;230" # DIRECTORIES
-FI="2;38;5;203" # ORDINARY FILES
-AR="1;38;5;203" # ARCHIVES & COMPRESSED FILES
-EX="1;38;5;084" # EXECUTABLE FILES (UNIX)
-XE="2;38;5;084" # EXECUTABLE FILES (WINDOWS)
-TX="0;38;5;032" # TEXT FILES
-GI="0;38;5;240" # GIT SPECIFIC FILES
-CF="4;38;5;203" # CONFIGURATION FILES (BUILD AUTOMATION TOOLS)
-IM="1;38;5;210" # IMAGE FILES
-AU="1;38;5;216" # AUDIO FILES
-VI="1;38;5;222" # VIDEO FILES
+export DI="1;38;5;230" # DIRECTORIES
+export FI="2;38;5;203" # ORDINARY FILES
+export LN="1;38;5;225" # SYMBOLIC LINKS
+export PI="1;38;5;223" # NAMED PIPES
+export AR="1;38;5;203" # ARCHIVES & COMPRESSED FILES
+export EX="1;38;5;084" # EXECUTABLE FILES (UNIX)
+export XE="2;38;5;084" # EXECUTABLE FILES (WINDOWS)
+export TX="0;38;5;032" # TEXT FILES
+export GI="0;38;5;240" # GIT SPECIFIC FILES
+export CF="4;38;5;203" # CONFIGURATION FILES (BUILD AUTOMATION TOOLS)
+export IM="1;38;5;210" # IMAGE FILES
+export AU="1;38;5;216" # AUDIO FILES
+export VI="1;38;5;222" # VIDEO FILES
 
-export LS_COLORS="di=${DI}:fi=${FI}:ex=${EX}:*.bat=${XE}:*.com=${XE}:*.exe=${XE}\
+export LS_COLORS="di=${DI}:fi=${FI}:ln=${LN}:pi=${PI}:ex=${EX}:*.bat=${XE}:*.com=${XE}:*.exe=${XE}\
 :*.7z=${AR}\
 :*.7zip=${AR}\
 :*.apk=1;38;5;139\
@@ -124,6 +126,7 @@ export LS_COLORS="di=${DI}:fi=${FI}:ex=${EX}:*.bat=${XE}:*.com=${XE}:*.exe=${XE}
 :*.bzip2=${AR}\
 :*.gz=${AR}\
 :*.gzip=${AR}\
+:*.ipk=${AR}\
 :*.rar=${AR}\
 :*.tar=${AR}\
 :*.zip=${AR}\

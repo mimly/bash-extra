@@ -88,80 +88,83 @@ padWithNonPrintableCharacters() {
 }
 
 historyFormatter() {
-    local positionColor dateColor anchorColor commandColor
-    positionColor="[0;38;5;251m"
-    dateColor="[0;38;5;253m"
-    anchorColor=${HOST_DEFAULT_COLOR}
-    commandColor="[0;38;5;255m"
+    local positionc datec anchorc commandc
+    positionc="[0;38;5;251m"
+    datec="[0;38;5;253m"
+    anchorc="[${HOST_DEFAULT_COLOR}m"
+    commandc="[0;38;5;255m"
 
-    sed -E "s/(\\s+)([[:digit:]]+)(\\s+)(.{19})(\\s+)([#$]{1})(\\s+)(.*)/${ITALIC}\1${positionColor}\2\3${dateColor}\4\5${anchorColor}\6\7${commandColor}\8${TERMINAL_DEFAULT_COLOR}/g"
+    sed -E "s/(\\s+)([[:digit:]]+)(\\s+)(.{19})(\\s+)([#$]{1})(\\s+)(.*)/[${ITALIC}m\1${positionc}\2\3${datec}\4\5${anchorc}\6\7${commandc}\8[${TERMINAL_DEFAULT_COLOR}m/g"
 }
 
 lsFormatter() {
-    local dirColor rPermColor wPermColor xPermColor inodeColor numberColor uidColor gidColor sizeColor dateColor
-    dirColor="[1;38;5;230m"
-    rPermColor="[1;38;5;228m"
-    wPermColor="[1;38;5;204m"
-    xPermColor="[1;38;5;84m"
-    inodeColor="[1;38;5;112m"
-    numberColor="[1;38;5;113m"
-    uidColor="[1;38;5;114m"
-    gidColor="[1;38;5;115m"
-    sizeColor="[1;38;5;116m"
-    dateColor="[1;38;5;117m"
+    local rc wc xc inodec numberc uidc gidc sizec datec
+    rc="[1;38;5;228m"
+    wc="[1;38;5;204m"
+    xc="[1;38;5;84m"
+    inodec="[1;38;5;112m"
+    numberc="[1;38;5;113m"
+    uidc="[1;38;5;114m"
+    gidc="[1;38;5;115m"
+    sizec="[1;38;5;116m"
+    datec="[1;38;5;117m"
 
     # Replace r, w and x permission attributes by single rare unicode character.
     # ANSI colors include multiple characters.
-    local u1 u2 u3 u4
+    local u1 u2 u3 u4 u5 u6
 
-    u1=香 u2=馘 u3=馗 u4=首 &&\
-        sed -E "s/(total [[:digit:]]+(\.[[:digit:]]+)?(K|M|G|T)?)/${sizeColor}\1${RESET}/" |
+    u1=馑 u2=馒 u3=馓 u4=馔 u5=馕 u6=首  &&\
+        sed -E "s/(total [[:digit:]]+(\.[[:digit:]]+)?(K|M|G|T)?)/${sizec}\1[${RESET}m/" |
 
         sed -E "s/^([0-9 ]*)d/\1${u1}/g" |
+        sed -E "s/^([0-9 ]*)l/\1${u2}/g" |
+        sed -E "s/^([0-9 ]*)p/\1${u3}/g" |
 
-        sed -E "s/^([0-9 ]*.{1})r/\1${u2}/g" |
-        sed -E "s/^([0-9 ]*.{4})r/\1${u2}/g" |
-        sed -E "s/^([0-9 ]*.{7})r/\1${u2}/g" |
+        sed -E "s/^([0-9 ]*.{1})r/\1${u4}/g" |
+        sed -E "s/^([0-9 ]*.{4})r/\1${u4}/g" |
+        sed -E "s/^([0-9 ]*.{7})r/\1${u4}/g" |
 
-        sed -E "s/^([0-9 ]*.{2})w/\1${u3}/g" |
-        sed -E "s/^([0-9 ]*.{5})w/\1${u3}/g" |
-        sed -E "s/^([0-9 ]*.{8})w/\1${u3}/g" |
+        sed -E "s/^([0-9 ]*.{2})w/\1${u5}/g" |
+        sed -E "s/^([0-9 ]*.{5})w/\1${u5}/g" |
+        sed -E "s/^([0-9 ]*.{8})w/\1${u5}/g" |
 
-        sed -E "s/^([0-9 ]*.{3})x/\1${u4}/g" |
-        sed -E "s/^([0-9 ]*.{6})x/\1${u4}/g" |
-        sed -E "s/^([0-9 ]*.{9})x/\1${u4}/g" |
+        sed -E "s/^([0-9 ]*.{3})x/\1${u6}/g" |
+        sed -E "s/^([0-9 ]*.{6})x/\1${u6}/g" |
+        sed -E "s/^([0-9 ]*.{9})x/\1${u6}/g" |
 
-        sed -E "s/${u1}/${dirColor}d${RESET}/g" |
-        sed -E "s/${u2}/${rPermColor}r${RESET}/g" |
-        sed -E "s/${u3}/${wPermColor}w${RESET}/g" |
-        sed -E "s/${u4}/${xPermColor}x${RESET}/g" |
+        sed -E "s/${u1}/[${TERMINAL_DEFAULT_COLOR_B}md[${RESET}m/g" |
+        sed -E "s/${u2}/[${LN}ml[${RESET}m/g" |
+        sed -E "s/${u3}/[${PI}mp[${RESET}m/g" |
+        sed -E "s/${u4}/${rc}r[${RESET}m/g" |
+        sed -E "s/${u5}/${wc}w[${RESET}m/g" |
+        sed -E "s/${u6}/${xc}x[${RESET}m/g" |
 
-        sed -E "s/([[:digit:]]+)(\\s+)([[:alpha:]]+)(\\s+)([[:alpha:]]+)(\\s+)([0-9.KMGT]+)(\\s+)((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec){1}\\s+([[:digit:]]+)\\s+([0-9:]+))/${numberColor}\1\2${uidColor}\3\4${gidColor}\5\6${sizeColor}\7\8${ITALIC}${dateColor}\9${RESET}/g" |
+        sed -E "s/([[:digit:]]+)(\\s+)([[:alpha:]]+)(\\s+)([[:alpha:]]+)(\\s+)([0-9.KMGT]+)(\\s+)((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec){1}\\s+([[:digit:]]+)\\s+([0-9:]+))/${numberc}\1\2${uidc}\3\4${gidc}\5\6${sizec}\7\8[${ITALIC}m${datec}\9[${RESET}m/g" |
 
-        sed -E "s/^(\\s*[[:digit:]]+)/${inodeColor}\1${RESET}/g"
+        sed -E "s/^(\\s*[[:digit:]]+)/${inodec}\1[${RESET}m/g"
 }
 
 showDateAndTime() {
-    printf "${YELLOW}%s" "$( date | awk '{ printf $0 }' )"
+    printf "[${YELLOW}m%s" "$( date | awk '{ printf $0 }' )"
 }
 
 showBatteryStatus() {
     local color status
     status=$( acpi | awk '{ gsub( /,|%/, "", $4 ); print $4 }' )
     if [[ ${status} -lt 10 ]] ; then
-        color=${DARK_RED}
+        color="[${DARK_RED}m"
     elif [[ ${status} -lt 30 ]] ; then
-        color=${RED}
+        color="[${RED}m"
     elif [[ ${status} -lt 60 ]] ; then
-        color=${YELLOW}
+        color="[${YELLOW}m"
     else
-        color=${GREEN}
+        color="[${GREEN}m"
     fi
     printf "${color}%s" "$( acpi | awk '{ gsub( ",", "", $4 ); print $1 ": " $4 }' )"
 }
 
 showEntropy() {
-    printf "${YELLOW}%s" "$( awk '{ print "Entropy: " $0 }' < /proc/sys/kernel/random/entropy_avail )"
+    printf "[${YELLOW}m%s" "$( awk '{ print "Entropy: " $0 }' < /proc/sys/kernel/random/entropy_avail )"
 }
 
 menu() {

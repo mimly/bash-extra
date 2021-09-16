@@ -44,14 +44,14 @@ SCRIPT_OPTIONS=(\
 SCRIPT_OPTION_DESCRIPTIONS=(\
     "sets background style to 1, color to 255 and color step to -1, which can be modified afterwards"\
     "sets background style to 1, color to 255 and color step to -1, which can be modified afterwards"\
-    "default $FG_STYLE, possible values 0-5,7,8"\
-    "default $BG_STYLE, possible values 0-5,7,8"\
-    "default $FG_COLOR, possible values 0-256"\
-    "default $BG_COLOR, possible values 0-256"\
-    "default $FG_COLOR_STEP, possible values integers"\
-    "default $BG_COLOR_STEP, possible values integers"\
-    "default $FG_STEP, possible values positive integers"\
-    "default $BG_STEP, possible values positive integers"\
+    "default ${FG_STYLE}, possible values 0-5,7,8"\
+    "default ${BG_STYLE}, possible values 0-5,7,8"\
+    "default ${FG_COLOR}, possible values 0-256"\
+    "default ${BG_COLOR}, possible values 0-256"\
+    "default ${FG_COLOR_STEP}, possible values integers"\
+    "default ${BG_COLOR_STEP}, possible values integers"\
+    "default ${FG_STEP}, possible values positive integers"\
+    "default ${BG_STEP}, possible values positive integers"\
     "e.g. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the foreground color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
     "e.g. 0:52,3:88,6:124,9:160,12:196,15:160,...,POSITION:COLOR, which means that the background color for characters on positions 0, 1 and 2 is 52, for characters on positions 3, 4 and 5 - 88 etc."\
     "output raw string to STDOUT"\
@@ -68,7 +68,7 @@ SCRIPT_SEE_ALSO=(\
 # We use "$@" instead of $* to preserve argument-boundary information
 # Add : to suppress getopt error messages, i.e. getopt -o ':...'
 ARGS=$(getopt -o 'i:j:k:l:ohv' --long 'arrow-right,arrow-left,fg-style:,foreground-style:,bg-style:,background-style:,fg-color:,foreground-color:,bg-color:,background-color:,fg-color-step:,foreground-color-step:,bg-color-step:,background-color-step:,fg-step:,foreground-step:,bg-step:,background-step:,fg-custom-scheme:,foreground-custom-scheme:,bg-custom-scheme:,background-custom-scheme:,output,help,version,update-manual' -- "$@") || { usage ; exit 1 ; }
-eval "set -- $ARGS"
+eval "set -- ${ARGS}"
 
 while true; do
     case $1 in
@@ -95,21 +95,21 @@ while true; do
         (--fg-custom-scheme|--foreground-custom-scheme)
             IFS=',' read -ra arr <<< "$2"
             for a in "${arr[@]}" ; do
-                IFS=':' read -ra tuple <<< "$a"
+                IFS=':' read -ra tuple <<< "${a}"
                 FG_CUSTOM_SCHEME+=(["${tuple[0]}"]="${tuple[1]}")
             done
             shift 2 ;;
         (--bg-custom-scheme|--background-custom-scheme)
             IFS=',' read -ra arr <<< "$2"
             for a in "${arr[@]}" ; do
-                IFS=':' read -ra tuple <<< "$a"
+                IFS=':' read -ra tuple <<< "${a}"
                 BG_CUSTOM_SCHEME+=(["${tuple[0]}"]="${tuple[1]}")
             done
             shift 2 ;;
         (-o|--output)
             FORMAT="q" ; shift ;;
         (-v|--version)
-            about ; changelog "$SCRIPT_NAME" ; exit 0 ;;
+            about ; changelog "${SCRIPT_NAME}" ; exit 0 ;;
         (-h|--help)
             usageFull ; exit 0 ;;
         (--update-manual) # hidden option
@@ -124,7 +124,7 @@ done
 REMAINING_ARGS=("$@")
 
 TEXT="${REMAINING_ARGS[*]}"
-if [[ -z $TEXT ]] ; then
+if [[ -z ${TEXT} ]] ; then
     usage
     exit 1
 fi
@@ -136,15 +136,15 @@ setColorScheme() {
     local -r STEP=$4
     local -r i=$5
 
-    if [[ -n ${CUSTOM_SCHEME[$i]} ]] ; then
-        COLOR=${CUSTOM_SCHEME[$i]}
+    if [[ -n ${CUSTOM_SCHEME[${i}]} ]] ; then
+        COLOR=${CUSTOM_SCHEME[${i}]}
     fi
 
     if [[ -n ${CUSTOM_SCHEME[*]} ]] ; then
         return
     fi
 
-    if [[ -n $STEP && $(( i % STEP )) -eq $(( STEP - 1 )) ]] ; then
+    if [[ -n ${STEP} && $(( i % STEP )) -eq $(( STEP - 1 )) ]] ; then
         COLOR=$(( COLOR + COLOR_STEP ))
     fi
 }
@@ -154,36 +154,36 @@ output=""
 
 setColorScheme BG_CUSTOM_SCHEME BG_COLOR
 
-if [[ $ARROW == "" ]] ; then
+if [[ ${ARROW} == "" ]] ; then
     nonPrintableCharacters=$(( nonPrintableCharacters + 8 + 11 + ( 10 + ${#BG_COLOR} ) + 8 ))
-    output+="$RESET[0;38;5;0m[${BG_STYLE};48;5;${BG_COLOR}m$ARROW$RESET"
-elif [[ $ARROW == "" ]] ; then
+    output+="[${RESET}m[0;38;5;0m[${BG_STYLE};48;5;${BG_COLOR}m${ARROW}[${RESET}m"
+elif [[ ${ARROW} == "" ]] ; then
     nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#BG_COLOR} ) + 8 ))
-    output+="$RESET[${BG_STYLE};38;5;${BG_COLOR}m$ARROW$RESET"
+    output+="[${RESET}m[${BG_STYLE};38;5;${BG_COLOR}m${ARROW}[${RESET}m"
 fi
 
 for (( i = 0; i < ${#TEXT}; ++i )) ; do
-    setColorScheme FG_CUSTOM_SCHEME FG_COLOR FG_COLOR_STEP FG_STEP "$i"
-    setColorScheme BG_CUSTOM_SCHEME BG_COLOR BG_COLOR_STEP BG_STEP "$i"
+    setColorScheme FG_CUSTOM_SCHEME FG_COLOR FG_COLOR_STEP FG_STEP "${i}"
+    setColorScheme BG_CUSTOM_SCHEME BG_COLOR BG_COLOR_STEP BG_STEP "${i}"
 
-    if [[ $BG_COLOR -eq 0 ]] ; then
+    if [[ ${BG_COLOR} -eq 0 ]] ; then
         nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#FG_COLOR} ) + 8 ))
-        output+="$RESET[${FG_STYLE};38;5;${FG_COLOR}m${TEXT:$i:1}$RESET"
+        output+="[${RESET}m[${FG_STYLE};38;5;${FG_COLOR}m${TEXT:${i}:1}[${RESET}m"
     else
         nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#FG_COLOR} ) + ( 10 + ${#BG_COLOR} ) + 8 ))
-        output+="$RESET[${FG_STYLE};38;5;${FG_COLOR}m[${BG_STYLE};48;5;${BG_COLOR}m${TEXT:$i:1}$RESET"
+        output+="[${RESET}m[${FG_STYLE};38;5;${FG_COLOR}m[${BG_STYLE};48;5;${BG_COLOR}m${TEXT:${i}:1}[${RESET}m"
     fi
 done
 
-if [[ $ARROW == "" ]] ; then
+if [[ ${ARROW} == "" ]] ; then
     nonPrintableCharacters=$(( nonPrintableCharacters + 8 + 11 + ( 10 + ${#BG_COLOR} ) + 8 ))
-    output+="$RESET[0;38;5;0m[${BG_STYLE};48;5;${BG_COLOR}m$ARROW$RESET"
-elif [[ $ARROW == "" ]] ; then
+    output+="[${RESET}m[0;38;5;0m[${BG_STYLE};48;5;${BG_COLOR}m${ARROW}[${RESET}m"
+elif [[ ${ARROW} == "" ]] ; then
     nonPrintableCharacters=$(( nonPrintableCharacters + 8 + ( 10 + ${#BG_COLOR} ) + 8 ))
-    output+="$RESET[${BG_STYLE};38;5;${BG_COLOR}m$ARROW$RESET"
+    output+="[${RESET}m[${BG_STYLE};38;5;${BG_COLOR}m${ARROW}[${RESET}m"
 fi
 
-printf "%$FORMAT\n" "$output"
+printf "%${FORMAT}\n" "${output}"
 
 # No other appropriate way to return a value from a function
-echo $nonPrintableCharacters >&7
+echo "${nonPrintableCharacters}" >&7

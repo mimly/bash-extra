@@ -62,7 +62,7 @@
 #####################################################################################
 
 getTemplateSize() {
-    head -100 "$TEMPLATE" | grep -n "^# END" | cut -f1 -d:
+    head -100 "${TEMPLATE}" | grep -n "^# END" | cut -f1 -d:
 }
 
 TEMPLATE=${BASH_SOURCE[0]}
@@ -73,14 +73,14 @@ TEMPLATE_SIZE=$(getTemplateSize)
 #####################################################################################
 
 name() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_NAME" | sed -E "
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_NAME" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
         s/\\$\{SCRIPT_DESCRIPTION\}/${SCRIPT_DESCRIPTION}/g"
 }
 
 synopsis() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -E "^#(ID_SYNOPSIS|%)" | sed -E "
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -E "^#(ID_SYNOPSIS|%)" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
         s/\\$\{SCRIPT_ARGUMENTS\}/${SCRIPT_ARGUMENTS}/g"
@@ -88,11 +88,11 @@ synopsis() {
 
 usage() {
     printf "Usage: "
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#%" | sed -E "
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#%" | sed -E "
         s/^#%[| ]*//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
         s/\\$\{SCRIPT_ARGUMENTS\}/${SCRIPT_ARGUMENTS}/g"
-    printf "Try '%s --help' for more information.\n" "$SCRIPT_NAME"
+    printf "Try '%s --help' for more information.\n" "${SCRIPT_NAME}"
 }
 
 usageFull() {
@@ -106,45 +106,45 @@ usageFull() {
 }
 
 description() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -E "^#ID_DESCRIPTION" | sed -E "
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -E "^#ID_DESCRIPTION" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_FULL_DESCRIPTION\}/${SCRIPT_FULL_DESCRIPTION}/g"
 }
 
 options() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_OPTIONS" | sed -E "s/^.{20}//g"
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_OPTIONS" | sed -E "s/^.{20}//g"
     local LEN=0
     for (( i = 0; i < ${#SCRIPT_OPTIONS[@]}; ++i )) ; do
-        if [[ $LEN -lt ${#SCRIPT_OPTIONS[$i]} ]] ; then
-            LEN=${#SCRIPT_OPTIONS[$i]}
+        if [[ ${LEN} -lt ${#SCRIPT_OPTIONS[${i}]} ]] ; then
+            LEN=${#SCRIPT_OPTIONS[${i}]}
         fi
     done
     for (( i = 0; i < ${#SCRIPT_OPTIONS[@]}; ++i )) ; do
-        local L=${SCRIPT_OPTIONS[$i]}
-        local R=${SCRIPT_OPTION_DESCRIPTIONS[$i]}
-        printf "    %-$(( LEN + 8 ))s%s\n" "$L" "$R"
+        local L=${SCRIPT_OPTIONS[${i}]}
+        local R=${SCRIPT_OPTION_DESCRIPTIONS[${i}]}
+        printf "    %-$(( LEN + 8 ))s%s\n" "${L}" "${R}"
     done
     printf "\n"
 }
 
 examples() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_EXAMPLES" | sed -E "s/^.{20}//g"
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_EXAMPLES" | sed -E "s/^.{20}//g"
     for (( i = 0; i < ${#SCRIPT_EXAMPLES[@]}; ++i )) ; do
-        printf "    %s %s\n" "$SCRIPT_NAME" "${SCRIPT_EXAMPLES[$i]}"
+        printf "    %s %s\n" "${SCRIPT_NAME}" "${SCRIPT_EXAMPLES[${i}]}"
     done
     printf "\n"
 }
 
 seeAlso() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_SEE_ALSO" | sed -E "s/^.{20}//g"
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_SEE_ALSO" | sed -E "s/^.{20}//g"
     for (( i = 0; i < ${#SCRIPT_SEE_ALSO[@]}; ++i )) ; do
-        printf "    %s " "${SCRIPT_SEE_ALSO[$i]}"
+        printf "    %s " "${SCRIPT_SEE_ALSO[${i}]}"
     done
     printf "\n\n"
 }
 
 about() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_ABOUT" | sed -E "
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_ABOUT" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
         s/\\$\{SCRIPT_VERSION\}/${SCRIPT_VERSION}/g
@@ -155,22 +155,22 @@ about() {
 
 changelog() {
     local GIT_REPO
-    GIT_REPO="$(dirname "$(whereis "$SCRIPT_NAME" | awk '{print $2}')")"
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_CHANGELOG" | sed -E "s/^.{20}//g"
-    git --git-dir="$(realpath "$GIT_REPO")"/.git log --reverse --format="%as|%aN|%s" | awk -F'|' '{printf "    %-15s%s (%s)\n", $1, $3, $2}'
+    GIT_REPO="$(dirname "$(whereis "${SCRIPT_NAME}" | awk '{print $2}')")"
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_CHANGELOG" | sed -E "s/^.{20}//g"
+    git --git-dir="$(realpath "${GIT_REPO}")"/.git log --reverse --format="%as|%aN|%s" | awk -F'|' '{printf "    %-15s%s (%s)\n", $1, $3, $2}'
     printf "\n"
 }
 
 bugs() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_BUGS" | sed -E "s/^.{20}//g"
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_BUGS" | sed -E "s/^.{20}//g"
     for (( i = 0; i < ${#SCRIPT_BUGS[@]}; ++i )) ; do
-        printf "    %s\n" "${SCRIPT_BUGS[$i]}"
+        printf "    %s\n" "${SCRIPT_BUGS[${i}]}"
     done
     printf "\n"
 }
 
 debug() {
-    head -"$TEMPLATE_SIZE" "$TEMPLATE" | grep -e "^#ID_DEBUG" | sed -E "s/^.{20}//g"
+    head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_DEBUG" | sed -E "s/^.{20}//g"
 }
 
 #####################################################################################
@@ -180,21 +180,21 @@ debug() {
 updateManual() {
     local MANPATH="/usr/local/man/man1"
     manual > "${SCRIPT_NAME}.1" &&\
-    su -c "install -g 0 -o 0 -m 0644 ${SCRIPT_NAME}.1 $MANPATH &&\
+    su -c "install -g 0 -o 0 -m 0644 ${SCRIPT_NAME}.1 ${MANPATH} &&\
         gzip ${MANPATH}/${SCRIPT_NAME}.1" &&\
     rm "${SCRIPT_NAME}.1" &&\
     printf "%s manual updated: %s\n" "${SCRIPT_NAME}" "${MANPATH}/${SCRIPT_NAME}.1.gz"
 }
 
 manual() {
-    printf ".TH man 1 \"%s\" \"%s\" \"%s man page\"\n" "$(date -I)" "$SCRIPT_VERSION" "$SCRIPT_NAME"
+    printf ".TH man 1 \"%s\" \"%s\" \"%s man page\"\n" "$(date -I)" "${SCRIPT_VERSION}" "${SCRIPT_NAME}"
     for SECTION in "$(name)" "$(synopsis)" "$(description)" "$(options)" "$(examples)" "$(seeAlso)" "$(about)" "$(changelog)" "$(bugs)" "$(debug)"; do
         printf ".SH "
-        printf "%s" "$SECTION" | head -1
-        printf " %s\n" "$SECTION" | tail +2 | sed -E -e "/^[ ]*/i.PP" -e "
+        printf "%s" "${SECTION}" | head -1
+        printf " %s\n" "${SECTION}" | tail +2 | sed -E -e "/^[ ]*/i.PP" -e "
             s/^[ ]*//g
             s/(${SCRIPT_NAME})/\\\fB\1\\\fR/g
-            s/($(printf "%q" "$SCRIPT_ARGUMENTS"))/\\\fI\1\\\fR/g
+            s/($(printf "%q" "${SCRIPT_ARGUMENTS}"))/\\\fI\1\\\fR/g
             s/(^|[ ]{1})(--[A-Za-z-]+)(([ =]{1})([A-Za-z:.,]+))?/\1\\\fB\2\\\fR\\\fI\3\\\fR/g
             s/(^|[ ]{1})(-[A-Za-z]{1})(([ =]{1})([A-Za-z:.,]+))?/\1\\\fB\2\\\fR\\\fI\3\\\fR/g"
         printf "\n"
@@ -206,5 +206,5 @@ manual() {
 #####################################################################################
 
 error() {
-    printf "%s: %s\n" "$SCRIPT_NAME" "$1"
+    printf "%s: %s\n" "${SCRIPT_NAME}" "$1"
 }

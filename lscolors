@@ -53,7 +53,7 @@ SCRIPT_SEE_ALSO=(\
 # We use "$@" instead of $* to preserve argument-boundary information
 # Add : to suppress getopt error messages, i.e. getopt -o ':...'
 ARGS=$(getopt -o 's:hv' --long 'style:,none,bold,dim,italic,underlined,blink,reverse,hidden,fg,foreground,bg,background,help,version,update-manual' -- "$@") || { usage ; exit 1 ; }
-eval "set -- $ARGS"
+eval "set -- ${ARGS}"
 
 while true; do
     case $1 in
@@ -103,7 +103,7 @@ if [[ -n ${CHOSEN_STYLES[*]} ]] ; then
 fi
 
 for s in "${STYLES[@]}" ; do
-    if ! [[ "$s" =~ ^[0-57-8]{1}$ ]] ; then
+    if ! [[ "${s}" =~ ^[0-57-8]{1}$ ]] ; then
         usage
         exit 1
     fi
@@ -118,16 +118,16 @@ else
 fi
 
 AVAILABLE_STYLES=([0]=RESET [1]=BOLD [2]=DIM [3]=ITALIC [4]=UNDERLINED [5]=BLINK [7]=REVERSE [8]=HIDDEN)
-printf "$RESET%s" ""
+printf "[${RESET}m%s" ""
 for n in "${STYLES[@]}" ; do
-    printf "$TERMINAL_DEFAULT_COLOR%-$(( 7 + TEXT_LEN + 2 ))s" "${AVAILABLE_STYLES[$n]}"
+    printf "[${TERMINAL_DEFAULT_COLOR}m%-$(( 7 + TEXT_LEN + 2 ))s" "${AVAILABLE_STYLES[${n}]}"
 done
 printf "\n"
 
-for i in 00{0..8} {0{3,4,9},10}{0..7} ; do
+for i in 00{0..8} {0{3,4,9},10}{0..7} ; do # {,\;1} ; do # 16 bits, i.e. bright colors
     for j in "${STYLES[@]}" ; do
-        COLOR="[$j;${i}m"
-        printf "$TERMINAL_DEFAULT_COLOR%-7s$RESET$COLOR%-$(( TEXT_LEN + 2 ))s$RESET" "$j;$i" "$TEXT"
+        COLOR="[${j};${i}m" # 8 bits
+        printf "[${TERMINAL_DEFAULT_COLOR}m%-7s[${RESET}m${COLOR}%-$(( TEXT_LEN + 2 ))s[${RESET}m" "${j};${i}" "${TEXT}"
     done
     printf "\n" ;
 done
@@ -138,8 +138,8 @@ printf "\n\n" ;
 
 for i in 00{0..9} 0{1..9}{0..9} {100..256} ; do
     for j in "${STYLES[@]}" ; do
-        COLOR="[$j;${PLANE};5;${i}m"
-        printf "$TERMINAL_DEFAULT_COLOR%-7s$RESET$COLOR%-$(( TEXT_LEN + 2 ))s$RESET" "$j;$i" "$TEXT"
+        COLOR="[${j};${PLANE};5;${i}m"
+        printf "[${TERMINAL_DEFAULT_COLOR}m%-7s[${RESET}m${COLOR}%-$(( TEXT_LEN + 2 ))s[${RESET}m" "${j};${i}" "${TEXT}"
     done
     printf "\n" ;
 done
