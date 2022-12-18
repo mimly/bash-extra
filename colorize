@@ -144,7 +144,7 @@ setColorScheme() {
         return
     fi
 
-    if [[ -n ${STEP} && $(( i % STEP )) -eq $(( STEP - 1 )) ]] ; then
+    if [[ -n ${STEP} && ${i} -ne 0 && $(( i % STEP )) -eq 0 ]] ; then
         COLOR=$(( COLOR + COLOR_STEP ))
     fi
 }
