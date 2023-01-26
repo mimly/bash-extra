@@ -62,17 +62,18 @@
 #####################################################################################
 
 getTemplateSize() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
     head -100 "${TEMPLATE}" | grep -n "^# END" | cut -f1 -d:
 }
-
-TEMPLATE=${BASH_SOURCE[0]}
-TEMPLATE_SIZE=$(getTemplateSize)
 
 #####################################################################################
 ######   T E M P L A T E   F U N C T I O N S   ######################################
 #####################################################################################
 
 name() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_NAME" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
@@ -80,6 +81,9 @@ name() {
 }
 
 synopsis() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -E "^#(ID_SYNOPSIS|%)" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
@@ -87,6 +91,9 @@ synopsis() {
 }
 
 usage() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     printf "Usage: "
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#%" | sed -E "
         s/^#%[| ]*//g
@@ -106,12 +113,18 @@ usageFull() {
 }
 
 description() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -E "^#ID_DESCRIPTION" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_FULL_DESCRIPTION\}/${SCRIPT_FULL_DESCRIPTION}/g"
 }
 
 options() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_OPTIONS" | sed -E "s/^.{20}//g"
     local LEN=0
     for (( i = 0; i < ${#SCRIPT_OPTIONS[@]}; ++i )) ; do
@@ -128,6 +141,9 @@ options() {
 }
 
 examples() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_EXAMPLES" | sed -E "s/^.{20}//g"
     for (( i = 0; i < ${#SCRIPT_EXAMPLES[@]}; ++i )) ; do
         printf "    %s %s\n" "${SCRIPT_NAME}" "${SCRIPT_EXAMPLES[${i}]}"
@@ -136,6 +152,9 @@ examples() {
 }
 
 seeAlso() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_SEE_ALSO" | sed -E "s/^.{20}//g"
     for (( i = 0; i < ${#SCRIPT_SEE_ALSO[@]}; ++i )) ; do
         printf "    %s " "${SCRIPT_SEE_ALSO[${i}]}"
@@ -144,6 +163,9 @@ seeAlso() {
 }
 
 about() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_ABOUT" | sed -E "
         s/^.{20}//g
         s/\\$\{SCRIPT_NAME\}/${SCRIPT_NAME}/g
@@ -154,6 +176,9 @@ about() {
 }
 
 changelog() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     local GIT_REPO
     GIT_REPO="$(dirname "$(whereis "${SCRIPT_NAME}" | awk '{print $2}')")"
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_CHANGELOG" | sed -E "s/^.{20}//g"
@@ -162,6 +187,9 @@ changelog() {
 }
 
 bugs() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_BUGS" | sed -E "s/^.{20}//g"
     for (( i = 0; i < ${#SCRIPT_BUGS[@]}; ++i )) ; do
         printf "    %s\n" "${SCRIPT_BUGS[${i}]}"
@@ -170,6 +198,9 @@ bugs() {
 }
 
 debug() {
+    local -r TEMPLATE=${BASH_SOURCE[0]}
+    local -r TEMPLATE_SIZE=$(getTemplateSize)
+
     head -"${TEMPLATE_SIZE}" "${TEMPLATE}" | grep -e "^#ID_DEBUG" | sed -E "s/^.{20}//g"
 }
 
