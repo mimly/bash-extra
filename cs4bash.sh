@@ -152,6 +152,7 @@ export LS_COLORS="di=${DI}:fi=${FI}:ln=${LN}:pi=${PI}:ex=${EX}:*.bat=${XE}:*.com
 :*.MF=${TX}\
 :*.properties=${CF}\
 :*.xml=${CF}\
+:*.yaml=${CF}\
 :*.yml=${CF}\
 :*.htm=0;38;5;209\
 :*.html=0;38;5;209\
