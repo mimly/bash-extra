@@ -139,6 +139,8 @@ export LS_COLORS="di=${DI}:fi=${FI}:ln=${LN}:pi=${PI}:ex=${EX}:*.bat=${XE}:*.com
 :*.cpp=0;38;5;228\
 :*.h=0;38;5;222\
 :*makefile=${CF}\
+:*Dockerfile=${CF}\
+:*Jenkinsfile=${CF}\
 :*.groovy=1;38;5;24\
 :*.kt=0;38;5;135\
 :*.gradle=${CF}\
